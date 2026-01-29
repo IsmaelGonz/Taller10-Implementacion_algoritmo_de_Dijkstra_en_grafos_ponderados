@@ -20,6 +20,7 @@ public class Main {
 
         boolean running = true;
 
+        // ===== BUCLE PRINCIPAL DEL PROGRAMA =====
         while (running) {
 
             File[] files = dataFolder.listFiles((dir, name) -> name.endsWith(".txt"));
@@ -36,43 +37,69 @@ public class Main {
             }
 
             System.out.print("Seleccione un archivo: ");
-            int option = input.nextInt();
+            int fileOption = input.nextInt();
 
-            if (option < 1 || option > files.length) {
-                System.out.println("Opción inválida. Intente nuevamente.");
+            if (fileOption < 1 || fileOption > files.length) {
+                System.out.println("Opción inválida.");
                 continue;
             }
 
-            File selectedFile = files[option - 1];
+            File selectedFile = files[fileOption - 1];
+            Graph graph;
 
             try {
-                Graph graph = new Graph(selectedFile.getPath());
-                int source = 0; // nodo origen fijo
-                Dijkstra.run(graph, source);
+                graph = new Graph(selectedFile.getPath());
             } catch (Exception e) {
-                System.out.println("Error al procesar el archivo.");
+                System.out.println("Error al leer el archivo.");
                 continue;
             }
 
-            // ===== MENÚ POST-EJECUCIÓN (VALIDADO) =====
-            int nextOption;
+            boolean sameGraph = true;
 
-            do {
-                System.out.println("\n¿Qué desea hacer ahora?");
-                System.out.println("1. Seleccionar otro archivo");
-                System.out.println("2. Salir");
-                System.out.print("Opción: ");
+            // ===== BUCLE PARA CAMBIAR NODO DE ORIGEN =====
+            while (sameGraph) {
 
-                nextOption = input.nextInt();
+                int n = graph.getN();
+                int source;
 
-                if (nextOption != 1 && nextOption != 2) {
-                    System.out.println("Opción inválida. Ingrese 1 o 2.");
+                // Ingreso y validación del nodo origen
+                do {
+                    System.out.print("Ingrese el nodo de origen (0 a " + (n - 1) + "): ");
+                    source = input.nextInt();
+
+                    if (source < 0 || source >= n) {
+                        System.out.println("Nodo inválido. Intente nuevamente.");
+                    }
+                } while (source < 0 || source >= n);
+
+                // Ejecución de Dijkstra
+                Dijkstra.run(graph, source);
+
+                // ===== MENÚ POST-TABLA =====
+                int nextOption;
+
+                do {
+                    System.out.println("\n¿Qué desea hacer ahora?");
+                    System.out.println("1. Volver a seleccionar otro nodo de origen");
+                    System.out.println("2. Seleccionar otro archivo");
+                    System.out.println("3. Salir");
+                    System.out.print("Opción: ");
+
+                    nextOption = input.nextInt();
+
+                    if (nextOption < 1 || nextOption > 3) {
+                        System.out.println("Opción inválida. Ingrese 1, 2 o 3.");
+                    }
+
+                } while (nextOption < 1 || nextOption > 3);
+
+                if (nextOption == 2) {
+                    sameGraph = false; // vuelve al menú de archivos
+                } else if (nextOption == 3) {
+                    sameGraph = false;
+                    running = false; // termina el programa
                 }
-
-            } while (nextOption != 1 && nextOption != 2);
-
-            if (nextOption == 2) {
-                running = false;
+                // Si elige 1, simplemente repite el bucle y pide otro origen
             }
         }
 
